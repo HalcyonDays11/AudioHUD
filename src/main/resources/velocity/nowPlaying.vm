@@ -1,0 +1,13 @@
+#if($nowPlaying)
+	<h2>Currently Listening</h2>
+	#if($nowPlayingArt)
+		<img src=${nowPlayingArt} width="400"></img>
+	#end
+	<h3><i>${nowPlaying.getName()}</i> by <b>${nowPlaying.getArtist()}</b></h3>
+#end
+<h4> - Last Played - </h4>
+<ol class="text-left">
+#foreach($track in $recentTracks)
+	<li><i>${track.getName()}</i> by <b>${track.getArtist()}</b>
+#end
+</ol>

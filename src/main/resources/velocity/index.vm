@@ -1,0 +1,29 @@
+#parse("/velocity/layout.vm")
+#set( $title = "Test")
+#set( $wsLocation = $WebPath.getWsFetchData() )
+#@mainLayout()
+	<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+		<main class="inner-cover" role="main">
+			<h3>Loading...</h3>
+		</main>
+	</div>
+	
+	<script type="text/javascript">
+		function initiateWebsocketConnection(){
+			var hostname = window.location.hostname;
+			var port = window.location.port;
+			var ws = new WebSocket("ws://" + hostname + ":" + port + "$wsLocation");
+			
+			ws.onopen = function() {    
+                console.log("We're connected!");
+            };
+
+			
+			ws.onmessage = function(event) {
+				$("main.inner-cover").html(event.data);
+			};
+		}
+		
+		initiateWebsocketConnection();
+	</script>
+#end
