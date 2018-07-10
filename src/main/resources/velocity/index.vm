@@ -17,7 +17,6 @@
 			ws.onopen = function() {    
                 console.log("We're connected!");
             };
-
 			
 			ws.onmessage = function(event) {
 				$("main.inner-cover").html(event.data);
