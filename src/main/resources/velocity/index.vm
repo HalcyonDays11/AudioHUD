@@ -1,11 +1,14 @@
 #parse("/velocity/layout.vm")
-#set( $title = "Test")
+#set( $title = "Now Playing")
 #set( $wsLocation = $WebPath.getWsFetchData() )
 #@mainLayout()
 	<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
 		<main class="inner-cover" role="main">
 			<h3>Loading...</h3>
 		</main>
+		<footer>
+			<a href="$WebPath.getAbout()">About This</a>
+		</footer> 
 	</div>
 	
 	<script type="text/javascript">

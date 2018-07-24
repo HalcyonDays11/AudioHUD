@@ -1,0 +1,63 @@
+#parse("/velocity/layout.vm")
+#set( $title = "About AudioHUD" )
+#set( $extraCss = ["about.css"] )
+#@mainLayout()
+	<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+		<main class="inner-cover" role="main">
+			<div class="about-title-box">
+				<img class="about-page-logo" src="/images/sonico_about.png" height="300px"/>
+				<h1 class="about-page-title">AudioHUD</h1>
+			</div>
+			<div class="about-break"></div>
+			<div class="about-main-questions">
+				<div class="about-qa">
+					<span class="about-question">What is AudioHUD?</span>
+					<span class="about-answer">It's a heads up display for what you're currently listening to, hence the name. The idea is to display whatever music
+					I'm listening to (or have recently listened to) in a clean, clear, and easy to read manner.  It was particularly designed to display full screen
+					and be visible at a distance.</span>
+				</div>
+				<div class="about-qa">
+					<span class="about-question">Why did I build it?</span>
+					<span class="about-answer">Three reasons:
+						<ol>
+							<li>I wanted an excuse to play around with the Spotify and Last.fm APIs.</li>
+							<li>I like having the chance to practice web skills, both front and back end.</li>
+							<li>I have a monitor mounted on the wall behind me in my office.</li>
+						<ol>
+					</span>
+				</div>
+				<div class="about-qa">
+					<span class="about-question">Does it do anything else?</span>
+					<span class="about-answer">As a matter of fact, it does!  If you navigate <a href="$WebPath.getSuggest()">over here</a> you'll see a page which lets you search for music, along
+					wth a "Suggest" button.  Once you've selected a song and clicked "Suggest", your song suggestion will automatically start playing from whatever
+					Spotify device I'm currently using.  I like most music, so I'm always looking for new stuff.  If you have a band you're really into, head on over
+					there and recommend something to me!  <br/> ...or use it to troll me incessantly.  Whatever.</span>
+				</div>
+				<div class="about-qa">
+					<span class="about-question">What's it built on?</span>
+					<span class="about-answer">Server code is Java, client is standard html/js/css.  But, more specifically, I'm using:
+					<ul>
+						<li><a href="http://sparkjava.com/">Spark Framework</a> (Apache 2 License)</li>
+						<li><a href="https://velocity.apache.org/">Apache Velocty</a> (Apache 2 License)</li>
+						<li><a href="https://getbootstrap.com">Bootstrap</a> (MIT License)</li>
+						<li><a href="https://jquery.com">jQuery</a> (MIT License)</li>
+					</ul>
+					I also use <a href="https://github.com/thelinmichael/spotify-web-api-java">spotify-web-api-java</a> (MIT License) to interact with <a href="https://spotify.com">Spotify</a> and <a href="https://github.com/jkovacs/lastfm-java">lastfm-java</a> (BSD-2-Clause License) to talk wth <a href="https://last.fm">Last.fm</a>,
+					and then the whole thing is cobbled together using Maven.
+					</span>
+				</div>
+				<div class="about-qa">
+					<span class="about-question">Can I see the code?</span>
+					<span class="about-answer">Sure thing.  The project is hosted on GitHub at <a href="https://github.com/HalcyonDays11/AudioHUD">https://github.com/HalcyonDays11/AudioHUD</a>.<br/>
+					All of my code, minus the dependences mentioned above, are offered under the BSD-2-Clause license.</span>
+				</div>
+				<div class="about-qa">
+					<span class="about-question">What's with the anime chick?</span>
+					<span class="about-answer">I was mostly just looking for something cute to tie things together, and she's like my absolute favorite anime character.  Her name is Sonico and she is &copy; <a href="http://www.nitroplus.co.jp/">Nitro+</a>.
+					She has long been a mascot for their music festivals and is essentially the embodiment of loving all kinds of music.  For those who are still intrigued, she has a virtual band called
+					<i>First Astronomical Velocity</i> whch you can check out here on <a href="https://open.spotify.com/artist/5xpxTGu5JyCGZ0AKXkDLtn">Spotfy.</a></span>
+				</div>
+			</div>
+		</main>
+	</div>
+#end

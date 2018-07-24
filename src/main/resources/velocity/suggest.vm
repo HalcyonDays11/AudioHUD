@@ -1,0 +1,44 @@
+#parse("/velocity/layout.vm")
+#set( $title = "Suggest Music")
+#set( $extraCss = ["suggest.css"] )
+#set( $postURL = $WebPath.getSearchAPI() )
+#@mainLayout()
+	<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+		<main class="inner-cover" role="main">
+			<div class="search-title">
+				<h3>Suggest Some Music</h3>
+			</div>
+			<div class="search-box">
+				<div class="search-img"><img src="/images/sonico_tuning.png" width="400px"></div>
+				<div class="search-field">
+					<form id="song-search">
+						<input type="text" placeholder="Suggest something..." name="search">
+						<button type="submit">Go!</button>
+					</form>
+				</div>
+			</div>
+			<div class="search-break"></div>
+			<div class="results" id="results">
+				&nbsp;&nbsp;&nbsp;&nbsp;I really do love all kinds of music, so go ahead!  Search for your favorite song by your favorite band!  Heard something that made you think of me?  I'd love to hear it!
+				Anything that's available on Spotify&trade; is searchable here, so knock yourself out!  Search away!  What are you waiting for?<br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;Once you find what you're looking for, suggest it!  If I'm listening to music, it'll switch to whatever you suggest.  It's really that simple.
+			</div>
+		</main>
+	</div>
+	
+	<script type="text/javascript">
+		$("#song-search").submit(function(e) {
+			var url = "$postURL";
+			
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: $(this).serialize(),
+				success: function(data){
+					$("#results").html(data);
+				}
+			});
+			e.preventDefault();
+		});
+	</script>
+#end

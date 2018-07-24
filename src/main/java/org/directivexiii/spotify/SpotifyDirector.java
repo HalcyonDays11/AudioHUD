@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
@@ -15,6 +16,7 @@ import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 
 public class SpotifyDirector {
 
@@ -38,7 +40,24 @@ public class SpotifyDirector {
 		return instance;
 	}
 	
+	public Track[] searchForSongs(String searchString) {
+		spotifyApi.authorizationCodeRefresh();
+		String query = searchString;
+		SearchTracksRequest tracksRequest = spotifyApi.searchTracks(query).limit(10).build();
+		try {
+			Paging<Track> result = tracksRequest.execute();
+			Track[] items = result.getItems();
+			return items;
+		} catch(UnauthorizedException e) {
+			refreshAccessToken();
+		} catch (SpotifyWebApiException | IOException e) {
+			e.printStackTrace();
+		}
+		return new Track[] {};
+	}
+	
 	public String getAlbumCoverUrl(String artist, String album) {
+		spotifyApi.authorizationCodeRefresh();
 		String query = "artist:" + artist + " album:" + album;
 		SearchAlbumsRequest albumRequest = spotifyApi.searchAlbums(query).limit(1).build();
 		AlbumSimplified albumObject = null;
@@ -48,6 +67,8 @@ public class SpotifyDirector {
 			if(albums.length > 0) {
 				albumObject = albums[0];
 			}
+		} catch(UnauthorizedException e) {
+			refreshAccessToken();
 		} catch (SpotifyWebApiException | IOException e) {
 			e.printStackTrace();
 		}
