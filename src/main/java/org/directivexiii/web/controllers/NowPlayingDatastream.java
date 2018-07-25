@@ -81,7 +81,7 @@ public class NowPlayingDatastream {
 				});
 			}
 			
-		}, 0, 10000L);
+		}, 0, 15000L);
 		System.out.println("Session started... broadcasting.");
 	}
 	

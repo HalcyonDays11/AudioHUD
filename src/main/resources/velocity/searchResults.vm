@@ -1,0 +1,37 @@
+#if ($songs.size() < 1)
+	<h3>No results found!  Search for something else.</h3>
+#else
+	<table>
+	<tr>
+		<th>Song</th>
+		<th>Artist</th>
+		<th>Album</th>
+		<th></th>
+	</tr>
+	#foreach($track in $songs)
+		<tr>
+			<td>$track.getName()</td>
+			<td>$track.getArtists()[0].getName()</td>
+			<td>$track.getAlbum().getName()</td>
+			<td><button class="suggest-button" onClick="suggest('$track.getUri()');">Suggest</button></td>
+		</tr>
+	#end
+	</table>
+	
+	<script type="text/javascript">
+		function suggest(trackURI){
+			var url = "$WebPath.getPlayAPI()";
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: "trackURI=" + trackURI,
+				success: function(data){
+					var hostname = window.location.hostname;
+					var port = window.location.port;
+					var redirect = "$WebPath.getIndex()";
+					window.location.href = "http://" + hostname + ":" + port + redirect;
+				} 
+			});
+		}
+	</script>
+#end

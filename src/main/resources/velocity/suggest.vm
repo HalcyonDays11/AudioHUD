@@ -13,23 +13,25 @@
 				<div class="search-field">
 					<form id="song-search">
 						<input type="text" placeholder="Suggest something..." name="search">
-						<button type="submit">Go!</button>
+						<button form="song-search" type="submit" value="submit">Go!</button>
 					</form>
 				</div>
 			</div>
 			<div class="search-break"></div>
 			<div class="results" id="results">
+				<div style="text-align: left;">
 				&nbsp;&nbsp;&nbsp;&nbsp;I really do love all kinds of music, so go ahead!  Search for your favorite song by your favorite band!  Heard something that made you think of me?  I'd love to hear it!
 				Anything that's available on Spotify&trade; is searchable here, so knock yourself out!  Search away!  What are you waiting for?<br/>
 				&nbsp;&nbsp;&nbsp;&nbsp;Once you find what you're looking for, suggest it!  If I'm listening to music, it'll switch to whatever you suggest.  It's really that simple.
+				</div>
 			</div>
 		</main>
 	</div>
 	
 	<script type="text/javascript">
 		$("#song-search").submit(function(e) {
+			e.preventDefault();
 			var url = "$postURL";
-			
 			$.ajax({
 				type: "POST",
 				url: url,
@@ -38,7 +40,6 @@
 					$("#results").html(data);
 				}
 			});
-			e.preventDefault();
 		});
 	</script>
 #end

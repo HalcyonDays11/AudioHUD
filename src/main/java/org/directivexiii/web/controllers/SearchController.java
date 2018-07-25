@@ -17,7 +17,7 @@ public class SearchController {
 
 	public static Route handleSearch = (Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<>();
-		String searchEntry = request.params("search");
+		String searchEntry = request.queryParams("search");
 		SpotifyDirector spotifyDirector = SpotifyDirector.getInstance();
 		
 		if(searchEntry.toLowerCase().contains(" by ")) {

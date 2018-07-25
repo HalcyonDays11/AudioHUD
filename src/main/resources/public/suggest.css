@@ -49,5 +49,26 @@
 
 .results {
 	font-size: medium;
-	text-align: left;
+}
+
+.results table{
+	width: 100%;
+	border: none;
+	text-align: center;
+	padding:5px;
+}
+
+.results tr:nth-child(even) {
+	background-color: #1a2e3f;
+}
+
+.suggest-button {
+	border-radius:5px;
+	margin-left:25px;
+	padding:5px;
+	background:#2196f3;
+	color: white;
+	font-size: large;
+	border: 1px solid #2196f3;
+	cursor:pointer;
 }

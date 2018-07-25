@@ -1,19 +1,32 @@
 package org.directivexiii.spotify;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
 
+import com.google.gson.JsonArray;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
+import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.miscellaneous.Device;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Paging;
 import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
+import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
+import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest.Builder;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import com.wrapper.spotify.requests.data.player.GetUsersAvailableDevicesRequest;
+import com.wrapper.spotify.requests.data.player.StartResumeUsersPlaybackRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
@@ -25,12 +38,15 @@ public class SpotifyDirector {
 	private Properties secrets;
 	private SpotifyApi spotifyApi;
 	
+	private String authorizationCode;
+	
 	public static void initialize() {
 		if(instance != null) {
 			instance = null;
 		}
 		instance = new SpotifyDirector();
 		instance.initializeInternal();
+		instance.authorize();
 	}
 	
 	public static SpotifyDirector getInstance() {
@@ -40,8 +56,43 @@ public class SpotifyDirector {
 		return instance;
 	}
 	
+	public void setAuthorizationCode(String code) {
+		this.authorizationCode = code;
+		refreshAccessToken(code);
+	}
+	
+	public void authorize() {
+		try {
+			URI magicURI = spotifyApi.authorizationCodeUri().scope("user-read-playback-state streaming").build().execute();
+			Desktop.getDesktop().browse(magicURI);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void playSong(String uri) {
+		JsonArray uriArray = new JsonArray();
+		uriArray.add(uri);
+		GetUsersAvailableDevicesRequest availableDevicesRequest = spotifyApi.getUsersAvailableDevices().build();
+		try {
+			Device[] devices = availableDevicesRequest.execute();
+			Optional<Device> possibleDevice = Arrays.stream(devices).filter(Device::getIs_active).findFirst();
+			if(!possibleDevice.isPresent()) {
+				return;
+			}
+			Device device = possibleDevice.get();
+			StartResumeUsersPlaybackRequest playbackRequest = spotifyApi.startResumeUsersPlayback().uris(uriArray).device_id(device.getId()).build();
+			playbackRequest.execute();
+		} catch(UnauthorizedException e) {
+			e.printStackTrace();
+			refreshAccessToken();
+		} catch (SpotifyWebApiException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public Track[] searchForSongs(String searchString) {
-		spotifyApi.authorizationCodeRefresh();
 		String query = searchString;
 		SearchTracksRequest tracksRequest = spotifyApi.searchTracks(query).limit(10).build();
 		try {
@@ -57,7 +108,6 @@ public class SpotifyDirector {
 	}
 	
 	public String getAlbumCoverUrl(String artist, String album) {
-		spotifyApi.authorizationCodeRefresh();
 		String query = "artist:" + artist + " album:" + album;
 		SearchAlbumsRequest albumRequest = spotifyApi.searchAlbums(query).limit(1).build();
 		AlbumSimplified albumObject = null;
@@ -81,11 +131,23 @@ public class SpotifyDirector {
 	}
 	
 	private void refreshAccessToken() {
-		ClientCredentialsRequest credentialsRequest = spotifyApi.clientCredentials().build();
+		AuthorizationCodeRefreshRequest authorizationCodeRefresh = spotifyApi.authorizationCodeRefresh().build();
 		try {
-			ClientCredentials response = credentialsRequest.execute();
-			spotifyApi.setAccessToken(response.getAccessToken());
-		} catch (SpotifyWebApiException | IOException e) {
+			AuthorizationCodeCredentials creds = authorizationCodeRefresh.execute();
+			spotifyApi.setAccessToken(creds.getAccessToken());
+			spotifyApi.setRefreshToken(creds.getRefreshToken());
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void refreshAccessToken(String code) {
+		AuthorizationCodeRequest codeRequest = spotifyApi.authorizationCode(code).build();
+		try {
+			AuthorizationCodeCredentials creds = codeRequest.execute();
+			spotifyApi.setAccessToken(creds.getAccessToken());
+			spotifyApi.setRefreshToken(creds.getRefreshToken());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -94,9 +156,18 @@ public class SpotifyDirector {
 		setupSecrets();
 		String clientId = secrets.getProperty("SPOTIFY_CLIENT_ID");
 		String clientSecret = secrets.getProperty("SPOTIFY_CLIENT_SECRET");
-		
-		spotifyApi = new SpotifyApi.Builder().setClientId(clientId).setClientSecret(clientSecret).build();
-		refreshAccessToken();
+		URI redirect_uri = null;
+		try {
+			redirect_uri = new URI("http://localhost:8080/callback");
+		} catch (URISyntaxException e) { }
+		spotifyApi = new SpotifyApi.Builder().setClientId(clientId).setClientSecret(clientSecret).setRedirectUri(redirect_uri).build();
+		ClientCredentialsRequest credentialsRequest = spotifyApi.clientCredentials().build();
+		try {
+			ClientCredentials response = credentialsRequest.execute();
+			spotifyApi.setAccessToken(response.getAccessToken());
+		} catch (SpotifyWebApiException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void setupSecrets() {

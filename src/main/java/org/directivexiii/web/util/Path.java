@@ -8,6 +8,7 @@ public class Path {
 		public static final String SUGGEST = "/suggest";
 		
 		public static final String SEARCH_API = "/api/search";
+		public static final String PLAY_API = "/api/play";
 		
 		public static final String WS_FETCH_DATA = "/ws/connectToDatastream";
 		
@@ -26,10 +27,15 @@ public class Path {
 		public static String getSearchAPI() {
 			return SEARCH_API;
 		}
+		
+		public static String getPlayAPI() {
+			return PLAY_API;
+		}
 				
 		public static String getWsFetchData() {
 			return WS_FETCH_DATA;
 		}
+		
 	}
 	
 	public static class Template {
