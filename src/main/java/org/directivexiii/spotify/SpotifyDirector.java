@@ -9,6 +9,9 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.JsonArray;
 import com.wrapper.spotify.SpotifyApi;
@@ -84,9 +87,6 @@ public class SpotifyDirector {
 			Device device = possibleDevice.get();
 			StartResumeUsersPlaybackRequest playbackRequest = spotifyApi.startResumeUsersPlayback().uris(uriArray).device_id(device.getId()).build();
 			playbackRequest.execute();
-		} catch(UnauthorizedException e) {
-			e.printStackTrace();
-			refreshAccessToken();
 		} catch (SpotifyWebApiException | IOException e) {
 			e.printStackTrace();
 		}
@@ -99,8 +99,6 @@ public class SpotifyDirector {
 			Paging<Track> result = tracksRequest.execute();
 			Track[] items = result.getItems();
 			return items;
-		} catch(UnauthorizedException e) {
-			refreshAccessToken();
 		} catch (SpotifyWebApiException | IOException e) {
 			e.printStackTrace();
 		}
@@ -117,8 +115,6 @@ public class SpotifyDirector {
 			if(albums.length > 0) {
 				albumObject = albums[0];
 			}
-		} catch(UnauthorizedException e) {
-			refreshAccessToken();
 		} catch (SpotifyWebApiException | IOException e) {
 			e.printStackTrace();
 		}
@@ -136,8 +132,18 @@ public class SpotifyDirector {
 			AuthorizationCodeCredentials creds = authorizationCodeRefresh.execute();
 			spotifyApi.setAccessToken(creds.getAccessToken());
 			spotifyApi.setRefreshToken(creds.getRefreshToken());
+			
+			Timer t = new Timer();
+			t.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					refreshAccessToken();
+				}
+			}, TimeUnit.SECONDS.toMillis(creds.getExpiresIn()));
+			
 		}catch(Exception e) {
 			e.printStackTrace();
+			refreshAccessToken(authorizationCode);
 		}
 	}
 	
@@ -147,6 +153,14 @@ public class SpotifyDirector {
 			AuthorizationCodeCredentials creds = codeRequest.execute();
 			spotifyApi.setAccessToken(creds.getAccessToken());
 			spotifyApi.setRefreshToken(creds.getRefreshToken());
+			
+			Timer t = new Timer();
+			t.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					refreshAccessToken();
+				}
+			}, TimeUnit.SECONDS.toMillis(creds.getExpiresIn()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
