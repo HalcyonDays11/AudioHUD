@@ -1,0 +1,76 @@
+#parse("/velocity/layout.vm")
+#set( $title = "Now Playing")
+#set( $wsLocation =	"/ws/datastream" )
+#@mainLayout()
+	<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+		<main class="inner-cover" role="main">
+			<div id="loading" class="d-block">
+				<h3>Loading...</h3>
+			</div>
+			<div id="now-playing" class="d-none">
+				<h2 class="impact">Currently Listening</h2>
+				<span class="album">
+					<img class="album-cover" src="/images/no_cover_art.jpg" width="400"/>
+					<img class="album-overlay" src="/images/super_sonico.png" width="200"/>
+				</span>
+				<h3><i id="songTitle"></i> by <b id="artistName"></b></h3>
+			</div>
+			<div id="nothing-playing" class="d-none">
+				<h2 class="impact">Nothing Playing</h2>
+				<img src="/images/sonico_not_playing.png" width="400"/>
+			</div>
+			<div id="last-played" class="d-none">
+				<h4 class="impact"> - Last Played - </h4>
+				<ol id="trackList" class="text-left">
+
+				</ol>
+			</div>
+		</main>
+		<footer>
+			<a href="/about">About This</a>
+		</footer> 
+	</div>
+	
+	<script type="text/javascript">
+		function initiateWebsocketConnection(){
+			let hostname = window.location.hostname;
+			let port = window.location.port;
+			 let ws = new WebSocket("ws://" + hostname + ":" + port + "$wsLocation");
+
+			 ws.onopen = function() {
+                 console.log("We're connected!");
+             };
+
+			 ws.onmessage = function(event) {
+				 console.log("Incoming event...")
+				 $("#loading").attr("class", "d-none");
+				 let musicStatus = JSON.parse(event.data);
+				 if(musicStatus.nowPlaying){
+					 let currentTrack = musicStatus.currentTrack;
+					 $("#songTitle").html(currentTrack.songTitle)
+					 $("#artistName").html(currentTrack.artist)
+					 $(".album-cover").attr("src", currentTrack.albumArtURL)
+					 $("#nothing-playing").attr("class", "d-none")
+					 $("#now-playing").attr("class", "d-block")
+				 }else{
+					 $("#now-playing").attr("class", "d-none")
+					 $("#nothing-playing").attr("class", "d-block")
+				 }
+
+				 if(musicStatus.recentlyPlayed.length > 0){
+					 $("#trackList").empty()
+					 musicStatus.recentlyPlayed.forEach((track) =>
+							 {
+								 $("#trackList").append("<li><i>" + track.songTitle + "</i> by <b>" + track.artist + "</b></li>")
+							 }
+					 )
+					 $("#last-played").attr("class", "d-block")
+				 }else{
+					 $("#last-played").attr("class", "d-none")
+				 }
+			 };
+		}
+		
+		initiateWebsocketConnection();
+	</script>
+#end
