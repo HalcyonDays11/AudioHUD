@@ -1,0 +1,41 @@
+.about-title-box {
+	height:20%;
+	width:50%;
+	margin: 0 auto;
+	font-family: Impact, Charcoal, sans-serif;
+}
+
+.about-page-logo {
+	float: left;
+}
+
+.about-page-title {
+	position: relative;
+	float: right;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
+	font-weight: bold;
+}
+
+.about-main-questions {
+	font-size: medium;
+	text-align: left;
+}
+
+.about-break {
+	clear: both;
+	height: .2em;
+}
+
+.about-qa {
+	margin-top: 25px;
+}
+
+.about-question {
+	font-weight:bold;
+}
+
+.about-answer {
+	margin-left:15px;
+}
