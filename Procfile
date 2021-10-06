@@ -1,1 +1,1 @@
-web: ./build/install/AudioHUD/AudioHUD
+web: ./build/install/AudioHUD/bin/AudioHUD
